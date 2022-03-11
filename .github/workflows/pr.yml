@@ -1,6 +1,8 @@
 name: CI
 
 on: 
+  schedule:
+    - cron: '0 14 * * 1'
   pull_request:
     types: [opened, synchronize]
     branches: [main, beta]
@@ -45,3 +47,26 @@ jobs:
       
       - name: build project
         run: yarn build
+
+  sync:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-node
+
+      - name: create commit when changed snapshot.json in @chakra-icons/*
+        run: ./.github/scripts/sync-snapshot
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Information
+        if: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
