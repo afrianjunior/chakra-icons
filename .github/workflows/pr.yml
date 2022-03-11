@@ -51,7 +51,7 @@ jobs:
   sync:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' }}
+      # if: ${{ github.event_name == 'schedule' }}
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-node
