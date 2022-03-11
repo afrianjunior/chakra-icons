@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+echo "Checking... modified snapshot.json in @chakra-icons/*"
+for maybe_snapshot in $(git diff-index --name-only HEAD --)
+do
+  file_name=$(basename $maybe_snapshot)
+  if [ $file_name = "snapshot.json" ]; then
+    scope=$(basename $(dirname $maybe_snapshot))
+    echo "Found changes in $scope"
+    git add $maybe_snapshot
+    git commit -m "feat($scope): sync update icons"
+    echo "Commited changes in $scope"
+  fi
+done
+
+exit 0
